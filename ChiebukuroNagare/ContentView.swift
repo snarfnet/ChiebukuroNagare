@@ -4,11 +4,15 @@ struct ContentView: View {
     private let wisdoms = WisdomStore.load()
     private let isEnglish = Locale.preferredLanguages.first?.hasPrefix("en") == true
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
+
     @State private var currentIndex = 0
     @State private var typedText = ""
     @State private var previousTexts: [String] = []
     @State private var isPaused = false
     @State private var typingTask: Task<Void, Never>?
+
+    private var isRegular: Bool { sizeClass == .regular }
 
     private var currentWisdom: WisdomItem {
         wisdoms[currentIndex]
@@ -25,6 +29,7 @@ struct ContentView: View {
                 controls
                 BannerAdView()
             }
+            .frame(maxWidth: isRegular ? 680 : .infinity)
             .safeAreaPadding(.horizontal)
             .ignoresSafeArea(.keyboard)
         }
@@ -62,12 +67,12 @@ struct ContentView: View {
 
     private var header: some View {
         HStack {
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: isRegular ? 4 : 2) {
                 Text(isEnglish ? "Grandma at" : "煙草屋の")
-                    .font(.caption)
+                    .font(.system(size: isRegular ? 18 : 12))
                     .foregroundStyle(.white.opacity(0.72))
                 Text(isEnglish ? "the Tobacco Shop" : "おばぁちゃん")
-                    .font(.system(size: isEnglish ? 30 : 38, weight: .bold, design: .serif))
+                    .font(.system(size: isEnglish ? (isRegular ? 42 : 30) : (isRegular ? 52 : 38), weight: .bold, design: .serif))
                     .foregroundStyle(.white)
                     .shadow(color: .black.opacity(0.75), radius: 12, y: 3)
                     .lineLimit(1)
@@ -75,23 +80,23 @@ struct ContentView: View {
             }
             Spacer()
         }
-        .padding(.horizontal, 22)
-        .padding(.top, 20)
+        .padding(.horizontal, isRegular ? 32 : 22)
+        .padding(.top, isRegular ? 32 : 20)
     }
 
     private var typewriterArea: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: isRegular ? 24 : 18) {
             flowLog
 
             Text("\(isEnglish ? "Category" : "分類") / \(currentWisdom.category)")
-                .font(.system(size: 14, weight: .medium, design: .monospaced))
+                .font(.system(size: isRegular ? 18 : 14, weight: .medium, design: .monospaced))
                 .foregroundStyle(.white.opacity(0.72))
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
 
             Text(typedText)
-                .font(.system(size: 28, weight: .bold, design: .serif))
-                .lineSpacing(9)
+                .font(.system(size: isRegular ? 38 : 28, weight: .bold, design: .serif))
+                .lineSpacing(isRegular ? 14 : 9)
                 .foregroundStyle(.white)
                 .shadow(color: .black.opacity(0.9), radius: 10, y: 3)
                 .minimumScaleFactor(0.5)
@@ -101,32 +106,32 @@ struct ContentView: View {
                     if !isPaused {
                         Rectangle()
                             .fill(.white)
-                            .frame(width: 2, height: 34)
+                            .frame(width: 2, height: isRegular ? 44 : 34)
                             .opacity(0.9)
                     }
                 }
                 .animation(.easeInOut(duration: 0.35), value: typedText)
         }
-        .padding(.horizontal, 24)
-        .padding(.bottom, 18)
+        .padding(.horizontal, isRegular ? 32 : 24)
+        .padding(.bottom, isRegular ? 28 : 18)
     }
 
     private var flowLog: some View {
-        VStack(alignment: .trailing, spacing: 10) {
+        VStack(alignment: .trailing, spacing: isRegular ? 14 : 10) {
             ForEach(Array(previousTexts.prefix(3).enumerated()), id: \.offset) { _, text in
                 Text(text)
-                    .font(.system(size: 13, weight: .semibold, design: .serif))
+                    .font(.system(size: isRegular ? 17 : 13, weight: .semibold, design: .serif))
                     .lineLimit(2)
                     .multilineTextAlignment(.trailing)
                     .foregroundStyle(.white.opacity(0.5))
             }
         }
         .frame(maxWidth: .infinity, alignment: .trailing)
-        .frame(height: 92, alignment: .bottomTrailing)
+        .frame(height: isRegular ? 130 : 92, alignment: .bottomTrailing)
     }
 
     private var controls: some View {
-        HStack(spacing: 14) {
+        HStack(spacing: isRegular ? 20 : 14) {
             Button {
                 start(at: currentIndex - 1)
             } label: {
@@ -149,12 +154,12 @@ struct ContentView: View {
             Button(isEnglish ? "Random" : "おまかせ") {
                 start(at: randomIndex())
             }
-            .font(.system(size: 15, weight: .bold, design: .rounded))
+            .font(.system(size: isRegular ? 18 : 15, weight: .bold, design: .rounded))
         }
         .buttonStyle(.borderedProminent)
         .tint(.white.opacity(0.18))
         .controlSize(.large)
-        .padding(.bottom, 8)
+        .padding(.bottom, isRegular ? 16 : 8)
     }
 
     private func start(at rawIndex: Int) {
